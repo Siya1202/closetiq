@@ -1,0 +1,95 @@
+// ClosetIQ — Prisma schema
+// Requires the pgvector Postgres extension (CREATE EXTENSION vector;)
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  items        Item[]
+
+  // stretch: group/social layer
+  friendshipsInitiated Friendship[] @relation("FriendshipRequester")
+  friendshipsReceived  Friendship[] @relation("FriendshipAddressee")
+
+  @@map("users")
+}
+
+model Item {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  photoUrl      String
+  category      String   // e.g. "top", "bottom", "shoes", "outerwear", "accessory"
+  color         String?
+  pattern       String?
+  season        String?  // "summer", "winter", "monsoon", "all-season"
+  formality     String?  // "casual", "formal", "athleisure", "ethnic"
+  brand         String?
+  price         Float?
+  purchaseDate  DateTime?
+  source        String?  // "screenshot", "photo", "wishlist"
+
+  // pgvector column for CLIP-style embeddings (stretch: style drift, reverse matching)
+  // Prisma doesn't natively model `vector` yet — add via raw SQL migration:
+  // ALTER TABLE items ADD COLUMN embedding vector(512);
+  embeddingUpdatedAt DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  archivedAt    DateTime? // soft-delete / "donated-or-sold" marker
+
+  wearLogs      WearLog[]
+
+  @@index([userId])
+  @@index([userId, category])
+  @@map("items")
+}
+
+model WearLog {
+  id       String   @id @default(cuid())
+  itemId   String
+  item     Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  wornAt   DateTime @default(now())
+  occasion String?  // optional tag: "work", "party", "gym", etc.
+
+  @@index([itemId])
+  @@index([itemId, wornAt])
+  @@map("wear_logs")
+}
+
+// ---- Stretch goal: group/social layer ----
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Friendship {
+  id            String           @id @default(cuid())
+  requesterId   String
+  requester     User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId   String
+  addressee     User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status        FriendshipStatus @default(PENDING)
+  createdAt     DateTime         @default(now())
+
+  @@unique([requesterId, addresseeId])
+  @@map("friendships")
+}
