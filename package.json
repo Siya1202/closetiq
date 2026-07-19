@@ -1,0 +1,25 @@
+{
+  "name": "closetiq",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"yarn workspace @closetiq/api dev\" \"yarn workspace @closetiq/web dev\"",
+    "dev:api": "yarn workspace @closetiq/api dev",
+    "dev:web": "yarn workspace @closetiq/web dev",
+    "build": "yarn workspace @closetiq/shared build && yarn workspace @closetiq/db build && yarn workspace @closetiq/api build && yarn workspace @closetiq/web build",
+    "prisma:migrate": "yarn workspace @closetiq/db prisma migrate dev",
+    "prisma:generate": "yarn workspace @closetiq/db prisma generate",
+    "prisma:studio": "yarn workspace @closetiq/db prisma studio"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
