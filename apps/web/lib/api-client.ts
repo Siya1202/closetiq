@@ -112,6 +112,14 @@ export async function apiGetItem(itemId: string) {
   return handleResponse<Item>(res);
 }
 
+export async function apiDeleteItem(itemId: string) {
+  const res = await fetch(`${API_BASE}/api/items/${itemId}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  return handleResponse<{ success: boolean }>(res);
+}
+
 // ── Wear Logs ─────────────────────────────────────────────────────────────────
 
 export interface WearLog {
@@ -122,11 +130,11 @@ export interface WearLog {
   wornAt: string;
 }
 
-export async function apiLogWear(itemId: string, occasion?: string) {
+export async function apiLogWear(itemId: string, occasion?: string, wornAt?: string) {
   const res = await fetch(`${API_BASE}/api/items/${itemId}/wearlogs`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ occasion }),
+    body: JSON.stringify({ occasion, wornAt }),
   });
   return handleResponse<WearLog>(res);
 }
@@ -153,7 +161,8 @@ export async function apiMatch(query: string, limit?: number) {
 
 export interface CostPerWearEntry {
   id: string;
-  name: string;
+  brand?: string;
+  color?: string;
   category: string;
   wearCount: number;
   price?: number;

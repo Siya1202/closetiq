@@ -75,11 +75,6 @@ export default function AddItemPage() {
       <div className="px-8 py-6 border-b-[3px] border-black flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h1 className="font-serif text-4xl">Add item</h1>
-          {isAutoTagging && (
-            <span className="font-sans text-xs uppercase tracking-widest text-muted animate-pulse">
-              Analyzing photo…
-            </span>
-          )}
         </div>
         <button
           onClick={() => router.back()}
@@ -89,15 +84,23 @@ export default function AddItemPage() {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-1 overflow-hidden">
+      <form onSubmit={handleSubmit} className="flex flex-col md:flex-row flex-1 overflow-y-auto md:overflow-hidden">
         {/* Left — photo upload */}
-        <div className="w-1/2 border-r-[3px] border-black">
+        <div className="w-full h-80 md:h-auto md:w-1/2 border-b-[3px] md:border-b-0 md:border-r-[3px] border-black shrink-0 relative">
           <UploadDropzone onUploaded={handlePhotoUploaded} />
         </div>
 
         {/* Right — metadata form */}
-        <div className="w-1/2 overflow-y-auto p-8 space-y-6">
-          {/* Category */}
+        <div className="relative w-full md:w-1/2 md:overflow-y-auto">
+          {isAutoTagging && (
+            <div className="absolute inset-0 bg-cream/70 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+              <div className="w-10 h-10 border-[3px] border-black border-t-transparent rounded-full animate-spin mb-6"></div>
+              <p className="font-sans text-xs font-bold uppercase tracking-widest animate-pulse">Analyzing photo…</p>
+            </div>
+          )}
+          
+          <div className="p-8 space-y-6">
+            {/* Category */}
           <div>
             <label className="block font-sans text-sm uppercase tracking-widest mb-2">
               Category <span className="text-terracotta">*</span>
@@ -210,14 +213,15 @@ export default function AddItemPage() {
             </p>
           )}
 
-          <button
-            id="save-item-btn"
-            type="submit"
-            disabled={saving}
-            className="btn-black w-full disabled:opacity-50"
-          >
-            {saving ? "Saving…" : "Add to closet →"}
-          </button>
+            <button
+              id="save-item-btn"
+              type="submit"
+              disabled={saving}
+              className="btn-black w-full disabled:opacity-50"
+            >
+              {saving ? "Saving…" : "Add to closet →"}
+            </button>
+          </div>
         </div>
       </form>
     </div>

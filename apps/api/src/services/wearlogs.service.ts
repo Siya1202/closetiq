@@ -7,9 +7,9 @@ async function assertOwnership(userId: string, itemId: string) {
   }
 }
 
-export async function createWearLog(userId: string, itemId: string, occasion?: string) {
+export async function createWearLog(userId: string, itemId: string, occasion?: string, wornAt?: Date) {
   await assertOwnership(userId, itemId);
-  return prisma.wearLog.create({ data: { itemId, occasion } });
+  return prisma.wearLog.create({ data: { itemId, occasion, wornAt } });
 }
 
 export async function listWearLogs(userId: string, itemId: string) {

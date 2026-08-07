@@ -21,3 +21,10 @@ yarn-error.log*
 *.pem
 .turbo
 coverage/
+
+*.png
+*.jpg
+*.webp
+*.jpeg
+*.gif
+*.HEIC

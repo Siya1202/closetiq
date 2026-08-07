@@ -1,4 +1,6 @@
 import { env } from "../config/env";
+import fs from "fs";
+import path from "path";
 
 interface VisionTags {
   category: string;
@@ -26,6 +28,17 @@ function extractJson(raw: string): VisionTags {
 }
 
 export async function tagItemFromImage(photoUrl: string): Promise<VisionTags> {
+  let imageUrl = photoUrl;
+  if (photoUrl.startsWith("/uploads/")) {
+    const filePath = path.join(process.cwd(), photoUrl);
+    if (fs.existsSync(filePath)) {
+      const ext = path.extname(filePath).substring(1).toLowerCase();
+      const mimeType = ext === "jpg" ? "jpeg" : ext;
+      const base64 = fs.readFileSync(filePath, "base64");
+      imageUrl = `data:image/${mimeType};base64,${base64}`;
+    }
+  }
+
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -33,7 +46,8 @@ export async function tagItemFromImage(photoUrl: string): Promise<VisionTags> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "anthropic/claude-sonnet-4-5",
+      model: "openai/gpt-4o-mini",
+      max_tokens: 800,
       messages: [
         {
           role: "user",
@@ -42,7 +56,7 @@ export async function tagItemFromImage(photoUrl: string): Promise<VisionTags> {
               type: "text",
               text: 'Look at this clothing item and return ONLY a JSON object with these keys: category (required, must be exactly one of: "Top", "Bottom", "Dress", "Outerwear", "Footwear", "Accessory", "Bag", "Other"), color (free text), pattern (free text), season (must be exactly one of: "Spring", "Summer", "Autumn", "Winter", "All season"), formality (must be exactly one of: "Casual", "Smart casual", "Business casual", "Formal", "Activewear"). If you cannot confidently determine a field, omit its key entirely rather than guessing. No markdown, no explanation — raw JSON only.',
             },
-            { type: "image_url", image_url: { url: photoUrl } },
+            { type: "image_url", image_url: { url: imageUrl } },
           ],
         },
       ],

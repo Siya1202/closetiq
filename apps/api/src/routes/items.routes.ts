@@ -6,6 +6,7 @@ import {
   validateCreateItem,
   autoTagItemController,
   validateAutoTag,
+  deleteItemController,
 } from "../controllers/items.controller";
 
 const router = Router();
@@ -119,5 +120,29 @@ router.get("/", listItemsController);
  *         description: Item not found
  */
 router.get("/:itemId", getItemController);
+
+/**
+ * @swagger
+ * /api/items/{id}:
+ *   delete:
+ *     summary: Delete an item
+ *     tags: [Items]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Item deleted successfully
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Item not found
+ */
+router.delete("/:id", deleteItemController);
 
 export default router;

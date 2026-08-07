@@ -60,7 +60,8 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-router.post("/", authMiddleware, upload.single("file"), (req: Request, res: Response) => {
+const multerMiddleware: any = upload.single("file");
+router.post("/", authMiddleware, multerMiddleware, (req: any, res: any) => {
   if (!req.file) {
     res.status(400).json({ error: "No file uploaded" });
     return;

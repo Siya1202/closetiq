@@ -10,6 +10,8 @@ export async function getCostPerWearReport(userId: string) {
     const wearCount = item.wearLogs.length;
     return {
       id: item.id,
+      brand: item.brand,
+      color: item.color,
       category: item.category,
       photoUrl: item.photoUrl,
       price: item.price,

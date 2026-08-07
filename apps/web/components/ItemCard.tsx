@@ -10,19 +10,8 @@ interface ItemCardProps {
   className?: string;
 }
 
-function isWornToday(lastWornAt?: string): boolean {
-  if (!lastWornAt) return false;
-  const worn = new Date(lastWornAt);
-  const now = new Date();
-  return (
-    worn.getDate() === now.getDate() &&
-    worn.getMonth() === now.getMonth() &&
-    worn.getFullYear() === now.getFullYear()
-  );
-}
 
 export default function ItemCard({ item, className = "" }: ItemCardProps) {
-  const wornToday = isWornToday(item.lastWornAt);
   const imageUrl = resolveImageUrl(item.photoUrl);
 
   return (
@@ -50,14 +39,6 @@ export default function ItemCard({ item, className = "" }: ItemCardProps) {
           <div className="absolute inset-0 bg-linen" />
         )}
 
-        {/* Worn today badge */}
-        {wornToday && (
-          <div className="absolute top-3 right-3 bg-terracotta px-2 py-1">
-            <span className="font-sans text-[10px] font-medium uppercase tracking-widest text-cream">
-              Worn today
-            </span>
-          </div>
-        )}
 
         {/* Item label */}
         <div className="absolute bottom-0 left-0 right-0 p-3">

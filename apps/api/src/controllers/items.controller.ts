@@ -5,6 +5,7 @@ import { validate } from "../middleware/validate.middleware";
 import * as itemsService from "../services/items.service";
 import * as visionService from "../services/vision.service";
 import { generateEmbedding, buildItemEmbeddingText, saveItemEmbedding } from "../services/embedding.service";
+import { prisma } from "@closetiq/db";
 
 const createItemSchema = z.object({
   photoUrl: z.string().min(1, { message: "photoUrl is required" }),
@@ -22,7 +23,10 @@ const createItemSchema = z.object({
 export const validateCreateItem = validate(createItemSchema);
 
 const autoTagSchema = z.object({
-  photoUrl: z.string().url({ message: "photoUrl must be a valid URL" }),
+  // Not .url() — apiUploadPhoto returns a relative path like "/uploads/xyz.jpg",
+  // which vision.service.ts reads directly off disk. A strict .url() check here
+  // rejected every real upload before it ever reached the vision model.
+  photoUrl: z.string().min(1, { message: "photoUrl is required" }),
 });
 
 export const validateAutoTag = validate(autoTagSchema);
@@ -66,6 +70,30 @@ export async function autoTagItemController(req: AuthedRequest, res: Response) {
     console.error("[vision] failed to auto-tag image:", err);
     // Do not crash the process; surface a 502 Bad Gateway or 500 error
     res.status(502).json({ error: "Failed to analyze image", details: err.message });
+  }
+}
+
+export async function deleteItemController(req: AuthedRequest, res: Response) {
+  try {
+    const item = await prisma.item.findUnique({
+      where: { id: req.params.id },
+    });
+    if (!item) {
+      res.status(404).json({ error: "Item not found" });
+      return;
+    }
+    if (item.userId !== req.user!.id) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    await prisma.item.delete({
+      where: { id: req.params.id },
+    });
+    res.status(200).json({ success: true });
+  } catch (err: any) {
+    console.error("Failed to delete item:", err);
+    res.status(500).json({ error: "Failed to delete item", details: err.message });
   }
 }
 

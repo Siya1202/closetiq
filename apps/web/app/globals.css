@@ -77,3 +77,30 @@
 .animate-marquee-vertical {
   animation: marquee-vertical 12s linear infinite;
 }
+
+/* React Day Picker Overrides */
+.rdp {
+  --rdp-cell-size: 35px;
+  --rdp-accent-color: #0A0A0A;
+  --rdp-background-color: #E8E5DF;
+  --rdp-accent-color-dark: #0A0A0A;
+  --rdp-background-color-dark: #E8E5DF;
+  --rdp-outline: 2px solid #0A0A0A;
+  --rdp-outline-selected: 2px solid #0A0A0A;
+  margin: 0 !important;
+}
+
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: #E8E5DF;
+  border-radius: 0;
+}
+
+.rdp-day_selected, .rdp-day_selected:focus-visible, .rdp-day_selected:hover {
+  border-radius: 0 !important;
+  background-color: #0A0A0A !important;
+  color: #F5F5F0 !important;
+}
+
+.rdp-button_reset {
+  border-radius: 0;
+}

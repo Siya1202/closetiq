@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { apiGetItem, apiListWearLogs, resolveImageUrl } from "@/lib/api-client";
 import WearLogButton from "@/components/WearLogButton";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface PageProps {
   params: { itemId: string };
@@ -23,6 +24,7 @@ function MetaRow({ label, value }: { label: string; value?: string | number | nu
 export default function ItemDetailPage({ params }: PageProps) {
   const { itemId } = params;
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: item, isLoading } = useQuery({
     queryKey: ["item", itemId],
@@ -50,7 +52,7 @@ export default function ItemDetailPage({ params }: PageProps) {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <div className="px-8 py-6 border-b-2 border-black flex items-center justify-between">
+      <div className="px-8 py-6 border-b-[3px] border-black flex items-center justify-between">
         <div>
           <h1 className="font-serif text-4xl">{item.brand ?? item.category}</h1>
           {item.brand && (
@@ -65,20 +67,22 @@ export default function ItemDetailPage({ params }: PageProps) {
         </button>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 overflow-y-auto md:overflow-hidden">
         {/* Left — photo */}
-        <div className="w-1/2 border-r-2 border-black relative bg-linen">
+        <div className="w-full h-80 md:h-auto md:w-1/2 border-b-[3px] md:border-b-0 md:border-r-[3px] border-black relative bg-linen shrink-0">
           {imageUrl && (
-            <Image src={imageUrl} alt={item.category} fill className="object-cover" />
+            <div className="absolute inset-4 md:inset-8">
+              <div className="w-full h-full border-2 border-black bg-white p-2 md:p-3 shadow-md flex items-center justify-center">
+                <div className="relative w-full h-full">
+                  <Image src={imageUrl} alt={item.category} fill className="object-contain md:object-cover" />
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
         {/* Right — details */}
-        <div className="w-1/2 overflow-y-auto p-8">
-          {/* Log wear */}
-          <div className="mb-8">
-            <WearLogButton itemId={itemId} />
-          </div>
+        <div className="w-full md:w-1/2 md:overflow-y-auto p-6 md:p-8 flex flex-col">
 
           {/* Metadata */}
           <div className="mb-8">
@@ -123,6 +127,27 @@ export default function ItemDetailPage({ params }: PageProps) {
               </div>
             </div>
           )}
+
+          {/* Actions (Log wear & Delete) */}
+          <div className="mt-auto pt-8 flex items-end justify-between">
+            <WearLogButton itemId={itemId} />
+            <button
+              onClick={async () => {
+                if (confirm("Are you sure you want to delete this item?")) {
+                  try {
+                    await import("@/lib/api-client").then(m => m.apiDeleteItem(itemId));
+                    await queryClient.invalidateQueries({ queryKey: ["items"] });
+                    router.push("/closet");
+                  } catch (err) {
+                    alert("Failed to delete item");
+                  }
+                }
+              }}
+              className="font-sans text-xs uppercase tracking-widest text-black hover:text-white transition-colors border border-black px-4 py-2 hover:bg-black"
+            >
+              Delete Item
+            </button>
+          </div>
         </div>
       </div>
     </div>

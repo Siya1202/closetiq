@@ -37,16 +37,16 @@ function Sidebar() {
   }
 
   return (
-    <aside className="fixed top-0 left-0 h-screen w-[220px] bg-cream border-r-[3px] border-black flex flex-col z-10">
-      {/* Wordmark */}
-      <div className="px-6 py-6 border-b-[3px] border-black">
+    <aside className="fixed bottom-0 left-0 w-full md:top-0 md:h-screen md:w-[220px] bg-cream border-t-[3px] md:border-t-0 md:border-r-[3px] border-black flex md:flex-col z-50">
+      {/* Desktop Wordmark */}
+      <div className="hidden md:block px-6 py-6 border-b-[3px] border-black">
         <Link href="/closet" className="font-sans text-xl tracking-tight">
           closetiq
         </Link>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-6 py-4">
+      <nav className="flex-1 px-4 py-2 md:px-6 md:py-4 flex md:flex-col overflow-x-auto gap-6 md:gap-0 justify-start">
         {navLinks.map((link) => {
           const isActive = pathname.startsWith(link.href);
           return (
@@ -55,18 +55,18 @@ function Sidebar() {
               href={link.href}
               className={
                 isActive
-                  ? "flex items-center border-b-2 border-black py-4 font-sans text-sm font-medium uppercase tracking-widest text-black border-l-[3px] border-l-black pl-3 -ml-3"
-                  : "flex items-center border-b-2 border-black py-4 font-sans text-sm font-medium uppercase tracking-widest text-muted hover:text-black transition-colors"
+                  ? "whitespace-nowrap flex items-center md:border-b-2 border-black py-2 md:py-4 font-sans text-xs md:text-sm font-medium uppercase tracking-widest text-black md:border-l-[3px] md:border-l-black md:pl-3 md:-ml-3"
+                  : "whitespace-nowrap flex items-center md:border-b-2 border-black py-2 md:py-4 font-sans text-xs md:text-sm font-medium uppercase tracking-widest text-muted hover:text-black transition-colors"
               }
             >
-              {link.label}
+              <span className={isActive ? "border-b-2 border-black md:border-none pb-1 md:pb-0" : ""}>{link.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Footer stats */}
-      <div className="px-6 py-6 border-t-[3px] border-black">
+      {/* Desktop Footer stats */}
+      <div className="hidden md:block px-6 py-6 border-t-[3px] border-black">
         <div className="border-b-2 border-black pb-4 mb-4">
           <p className="font-sans text-sm text-muted">
             {items?.length ?? "—"} items
@@ -101,10 +101,23 @@ export default function DashboardLayout({
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-cream pb-14 md:pb-0">
+      {/* Mobile Top Header */}
+      <div className="md:hidden sticky top-0 bg-cream z-40 border-b-[3px] border-black px-4 py-3 flex justify-between items-center">
+        <Link href="/closet" className="font-sans text-xl tracking-tight">
+          closetiq
+        </Link>
+        <button
+          onClick={() => { clearToken(); router.push("/login"); }}
+          className="font-sans text-[10px] uppercase tracking-widest text-muted"
+        >
+          Log out
+        </button>
+      </div>
+
       <Sidebar />
-      {/* Main content offset by sidebar width */}
-      <main className="ml-[220px] min-h-screen border-l-[3px] border-black">
+      {/* Main content offset by sidebar width on desktop */}
+      <main className="md:ml-[220px] min-h-screen md:border-l-[3px] border-black">
         {children}
       </main>
     </div>

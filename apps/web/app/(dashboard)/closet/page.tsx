@@ -48,20 +48,20 @@ export default function ClosetPage() {
         )}
 
         {items && items.length > 0 && (
-          /* Bento grid: 3 columns, rows auto-sized, dividing lines via gap + border */
+          /* Bento grid: responsive columns, rows auto-sized, dividing lines via gap + border */
           <div
-            className="grid grid-cols-3 border-b-2 border-black"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 border-b-2 border-black"
             style={{ gridAutoRows: "280px" }}
           >
             {items.map((item, i) => {
-              // Every 5th card spans 2 columns to create variety like the mockup
+              // Every 5th card spans 2 columns to create variety like the mockup (desktop only)
               const isWide = i % 5 === 0;
               return (
                 <ItemCard
                   key={item.id}
                   item={item}
                   className={`border-r-2 border-b-2 border-black ${
-                    isWide ? "col-span-2" : ""
+                    isWide ? "md:col-span-2" : ""
                   }`}
                 />
               );
