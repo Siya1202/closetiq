@@ -61,6 +61,11 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 EXPOSE 4000
 
+# Copy the Prisma binary so we don't need npx (which tries to hit the network).
+# Use the locally-installed prisma CLI from node_modules.
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+
 # Run migrations then start the server.
 # `prisma migrate deploy` is idempotent — safe to run on every startup.
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+# Use the local binary — avoid npx which may not find prisma in production image.
+CMD ["sh", "-c", "echo '==> Running DB migrations...' && ./node_modules/.bin/prisma migrate deploy --schema=./prisma/schema.prisma && echo '==> Starting API server...' && node dist/index.js"]
