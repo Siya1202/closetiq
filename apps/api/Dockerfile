@@ -5,17 +5,23 @@ FROM node:20-alpine AS builder
 # Install openssl for Prisma binary compatibility on Alpine
 RUN apk add --no-cache openssl
 
+# Enable corepack so the `packageManager` field in package.json is respected
+# This ensures the correct Yarn version (4.x Berry) is used, not Yarn Classic.
+RUN corepack enable
+
 WORKDIR /app
 
-# Copy workspace manifests first for better layer caching
-COPY package.json yarn.lock ./
+# Copy workspace manifests + lockfile first for better layer caching.
+# We need ALL package.json files so Yarn can resolve the full workspace graph.
+COPY package.json yarn.lock .yarnrc.yml ./
 COPY packages/db/package.json ./packages/db/
 COPY packages/shared/package.json ./packages/shared/
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 
-# Install all dependencies (including dev — needed for tsc + tsx)
-RUN yarn install --frozen-lockfile
+# Install all dependencies (including dev — needed for tsc + tsx).
+# --immutable is the Yarn Berry (v4) equivalent of --frozen-lockfile.
+RUN yarn install --immutable
 
 # Copy the rest of the source
 COPY tsconfig.base.json ./
