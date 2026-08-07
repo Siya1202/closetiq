@@ -12,6 +12,7 @@ COPY package.json yarn.lock ./
 COPY packages/db/package.json ./packages/db/
 COPY packages/shared/package.json ./packages/shared/
 COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
 
 # Install all dependencies (including dev — needed for tsc + tsx)
 RUN yarn install --frozen-lockfile
