@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import swaggerUi from "swagger-ui-express";
+import cookieParser from "cookie-parser";
 import { swaggerSpec } from "./config/swagger";
 import { env } from "./config/env";
 import { authMiddleware } from "./middleware/auth.middleware";
@@ -28,9 +29,8 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cookieParser());
 
-// Serve uploaded images as static files
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", env: env.nodeEnv });
@@ -38,8 +38,27 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", authRoutes);
 
-// @ts-expect-error: types for swagger-ui-express and express are out of sync
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+const swaggerHandler = swaggerUi.setup(swaggerSpec);
+
+app.use("/api-docs", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (env.nodeEnv !== "production") {
+    return next();
+  }
+  
+  if (!env.apiDocsUser || !env.apiDocsPassword) {
+    return res.status(404).send("API docs not available");
+  }
+
+  const b64auth = (req.headers.authorization || "").split(" ")[1] || "";
+  const [user, password] = Buffer.from(b64auth, "base64").toString().split(":");
+
+  if (user === env.apiDocsUser && password === env.apiDocsPassword) {
+    return next();
+  }
+
+  res.set("WWW-Authenticate", 'Basic realm="401"');
+  res.status(401).send("Authentication required.");
+}, ...(swaggerUi.serve as any[]), swaggerHandler as any);
 
 app.use("/api/items", authMiddleware, itemsRoutes);
 app.use("/api/items/:itemId/wearlogs", authMiddleware, wearLogsRoutes);

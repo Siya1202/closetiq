@@ -1,6 +1,4 @@
 import { env } from "../config/env";
-import fs from "fs";
-import path from "path";
 
 interface VisionTags {
   category: string;
@@ -28,16 +26,7 @@ function extractJson(raw: string): VisionTags {
 }
 
 export async function tagItemFromImage(photoUrl: string): Promise<VisionTags> {
-  let imageUrl = photoUrl;
-  if (photoUrl.startsWith("/uploads/")) {
-    const filePath = path.join(process.cwd(), photoUrl);
-    if (fs.existsSync(filePath)) {
-      const ext = path.extname(filePath).substring(1).toLowerCase();
-      const mimeType = ext === "jpg" ? "jpeg" : ext;
-      const base64 = fs.readFileSync(filePath, "base64");
-      imageUrl = `data:image/${mimeType};base64,${base64}`;
-    }
-  }
+  const imageUrl = photoUrl;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",

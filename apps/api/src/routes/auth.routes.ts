@@ -87,4 +87,10 @@ router.post("/signup", validateSignup, signupController);
  */
 router.post("/login", validateLogin, loginController);
 
+import { meController, logoutController } from "../controllers/auth.controller";
+import { authMiddleware } from "../middleware/auth.middleware";
+
+router.post("/logout", logoutController);
+router.get("/me", authMiddleware, meController);
+
 export default router;

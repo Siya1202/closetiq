@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiLogin } from "@/lib/api-client";
-import { setToken } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,8 +17,7 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const { token } = await apiLogin(email, password);
-      setToken(token);
+      await apiLogin(email, password);
       router.push("/closet");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");

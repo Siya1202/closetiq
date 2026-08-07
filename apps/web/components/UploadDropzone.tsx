@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { apiUploadPhoto } from "@/lib/api-client";
+import { apiSignUpload } from "@/lib/api-client";
 
 interface UploadDropzoneProps {
   onUploaded: (url: string) => void;
@@ -19,8 +19,27 @@ export default function UploadDropzone({ onUploaded }: UploadDropzoneProps) {
       setPreview(URL.createObjectURL(file));
       setUploading(true);
       try {
-        const { url } = await apiUploadPhoto(file);
-        onUploaded(url);
+        const { signature, timestamp, apiKey, cloudName } = await apiSignUpload();
+        
+        const form = new FormData();
+        form.append("file", file);
+        form.append("api_key", apiKey);
+        form.append("timestamp", String(timestamp));
+        form.append("signature", signature);
+        // We do not append upload_preset for authenticated signed uploads
+
+        const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: form,
+        });
+        
+        if (!cloudRes.ok) {
+          const cloudBody = await cloudRes.json().catch(() => ({}));
+          throw new Error(cloudBody.error?.message || "Cloudinary upload failed");
+        }
+        
+        const cloudData = await cloudRes.json();
+        onUploaded(cloudData.secure_url);
       } catch (err: unknown) {
         setUploadError(
           err instanceof Error ? err.message : "Upload failed"

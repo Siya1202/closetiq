@@ -3,11 +3,14 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        // Allow images served from the local API server
+        // Allow Cloudinary uploads
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+      {
+        // Allow legacy local uploads
         protocol: "http",
         hostname: "localhost",
-        port: "4000",
-        pathname: "/uploads/**",
       },
       {
         // Allow any HTTPS image (for seeded/demo data)

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { apiListItems } from "@/lib/api-client";
-import { clearToken, isLoggedIn } from "@/lib/auth";
+import { apiListItems, apiCheckAuth, apiLogout } from "@/lib/api-client";
 import { useEffect } from "react";
 
 const navLinks = [
@@ -31,8 +30,8 @@ function Sidebar() {
     return diff <= 7;
   }).length ?? 0;
 
-  function handleLogout() {
-    clearToken();
+  async function handleLogout() {
+    await apiLogout().catch(() => {});
     router.push("/login");
   }
 
@@ -95,10 +94,8 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoggedIn()) {
-      router.replace("/login");
-    }
-  }, [router]);
+    apiCheckAuth().catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen bg-cream pb-14 md:pb-0">
@@ -108,7 +105,7 @@ export default function DashboardLayout({
           closetiq
         </Link>
         <button
-          onClick={() => { clearToken(); router.push("/login"); }}
+          onClick={async () => { await apiLogout().catch(() => {}); router.push("/login"); }}
           className="font-sans text-[10px] uppercase tracking-widest text-muted"
         >
           Log out

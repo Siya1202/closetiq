@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiSignup } from "@/lib/api-client";
-import { setToken } from "@/lib/auth";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -19,8 +18,7 @@ export default function SignupPage() {
     setError("");
     setLoading(true);
     try {
-      const { token } = await apiSignup(email, password, name || undefined);
-      setToken(token);
+      await apiSignup(email, password, name);
       router.push("/closet");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Sign up failed");
