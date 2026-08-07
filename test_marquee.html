@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    .marquee-container {
+      width: 32px;
+      height: 400px;
+      background: #f0f0f0;
+      border: 1px solid black;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .animate-marquee-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+      font-size: 10px;
+      font-family: sans-serif;
+      text-transform: uppercase;
+      white-space: nowrap;
+      writing-mode: vertical-rl;
+    }
+  </style>
+</head>
+<body>
+  <div class="marquee-container">
+    <div class="animate-marquee-vertical">
+      <span>Track. Wear. Repeat.</span>
+      <span>Track. Wear. Repeat.</span>
+      <span>Track. Wear. Repeat.</span>
+    </div>
+  </div>
+</body>
+</html>

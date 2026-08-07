@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-serif: 'Didot', 'Didot LT Std', 'Bodoni Moda', 'Bodoni MT', 'Book Antiqua', Georgia, serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background-color: #F5F5F0;
+    color: #0A0A0A;
+    font-size: 18px; /* Base bump — all rem units scale up */
+  }
+
+  body {
+    font-family: var(--font-serif);
+    background-color: #F5F5F0;
+    color: #0A0A0A;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  *:focus-visible {
+    outline: 2px solid #0A0A0A;
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  }
+  .font-didot {
+    font-family: 'Didot', 'Didot LT Std', 'Bodoni Moda', 'Bodoni MT', 'Book Antiqua', Georgia, serif !important;
+  }
+}
+
+@layer components {
+  .input-black {
+    @apply w-full border-2 border-black bg-transparent px-4 py-3 font-sans text-base tracking-wide placeholder:text-muted focus:outline-none focus:ring-0;
+  }
+
+  .btn-black {
+    @apply inline-flex items-center justify-center border-2 border-black bg-black px-7 py-3.5 font-sans text-sm font-medium uppercase tracking-widest text-cream transition-all hover:bg-cream hover:text-black;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center border-2 border-black bg-transparent px-7 py-3.5 font-sans text-sm font-medium uppercase tracking-widest text-black transition-all hover:bg-black hover:text-cream;
+  }
+
+  .nav-item {
+    @apply block border-b border-black py-5 font-sans text-sm font-medium uppercase tracking-widest text-muted transition-colors hover:text-black;
+  }
+
+  .nav-item-active {
+    @apply nav-item border-l-[3px] border-l-black pl-3 text-black;
+  }
+}
+
+@keyframes marquee-vertical {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-33.33%);
+  }
+}
+
+.animate-marquee-vertical {
+  animation: marquee-vertical 12s linear infinite;
+}

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function DashboardPage() {
+export default function RootPage() {
   redirect("/closet");
 }

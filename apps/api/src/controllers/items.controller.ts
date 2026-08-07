@@ -3,10 +3,11 @@ import { z } from "zod";
 import { AuthedRequest } from "../middleware/auth.middleware";
 import { validate } from "../middleware/validate.middleware";
 import * as itemsService from "../services/items.service";
+import * as visionService from "../services/vision.service";
 import { generateEmbedding, buildItemEmbeddingText, saveItemEmbedding } from "../services/embedding.service";
 
 const createItemSchema = z.object({
-  photoUrl: z.string().url({ message: "photoUrl must be a valid URL" }),
+  photoUrl: z.string().min(1, { message: "photoUrl is required" }),
   category: z.string().min(1, { message: "category is required" }),
   color: z.string().optional(),
   pattern: z.string().optional(),
@@ -19,6 +20,12 @@ const createItemSchema = z.object({
 });
 
 export const validateCreateItem = validate(createItemSchema);
+
+const autoTagSchema = z.object({
+  photoUrl: z.string().url({ message: "photoUrl must be a valid URL" }),
+});
+
+export const validateAutoTag = validate(autoTagSchema);
 
 export async function createItemController(req: AuthedRequest, res: Response) {
   const userId = req.user!.id;
@@ -48,3 +55,17 @@ export async function getItemController(req: AuthedRequest, res: Response) {
   const item = await itemsService.getItemById(userId, itemId);
   res.status(200).json(item);
 }
+
+export async function autoTagItemController(req: AuthedRequest, res: Response) {
+  const body = req.body as z.infer<typeof autoTagSchema>;
+
+  try {
+    const tags = await visionService.tagItemFromImage(body.photoUrl);
+    res.status(200).json(tags);
+  } catch (err: any) {
+    console.error("[vision] failed to auto-tag image:", err);
+    // Do not crash the process; surface a 502 Bad Gateway or 500 error
+    res.status(502).json({ error: "Failed to analyze image", details: err.message });
+  }
+}
+

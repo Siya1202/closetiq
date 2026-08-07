@@ -4,6 +4,8 @@ import {
   listItemsController,
   getItemController,
   validateCreateItem,
+  autoTagItemController,
+  validateAutoTag,
 } from "../controllers/items.controller";
 
 const router = Router();
@@ -55,6 +57,32 @@ const router = Router();
  *         description: Unauthorized
  */
 router.post("/", validateCreateItem, createItemController);
+
+/**
+ * @swagger
+ * /api/items/auto-tag:
+ *   post:
+ *     summary: Auto-tag an item from its photo
+ *     tags: [Items]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - photoUrl
+ *             properties:
+ *               photoUrl:
+ *                 type: string
+ *                 format: uri
+ *     responses:
+ *       200:
+ *         description: Tags returned successfully
+ *       502:
+ *         description: Failed to analyze image
+ */
+router.post("/auto-tag", validateAutoTag, autoTagItemController);
 
 /**
  * @swagger

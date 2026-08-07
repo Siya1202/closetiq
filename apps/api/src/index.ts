@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
 import { env } from "./config/env";
@@ -11,6 +12,7 @@ import wearLogsRoutes from "./routes/wearlogs.routes";
 import analyticsRoutes from "./routes/analytics.routes";
 import matchRoutes from "./routes/match.routes";
 import styleRoutes from "./routes/style.routes";
+import uploadRoutes from "./routes/upload.routes";
 import { scheduleCostPerWearRecompute } from "./jobs/recomputeCostPerWear.cron";
 import { scheduleStyleDriftRecompute } from "./jobs/recomputeStyleDrift.cron";
 
@@ -27,6 +29,9 @@ app.use(
 
 app.use(express.json());
 
+// Serve uploaded images as static files
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", env: env.nodeEnv });
 });
@@ -41,6 +46,7 @@ app.use("/api/items/:itemId/wearlogs", authMiddleware, wearLogsRoutes);
 app.use("/api/analytics", authMiddleware, analyticsRoutes);
 app.use("/api/match", authMiddleware, matchRoutes);
 app.use("/api/style", authMiddleware, styleRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.use(errorMiddleware);
 
