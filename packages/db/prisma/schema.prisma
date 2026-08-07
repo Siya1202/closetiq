@@ -45,9 +45,9 @@ model Item {
   purchaseDate  DateTime?
   source        String?  // "screenshot", "photo", "wishlist"
 
-  // pgvector column for CLIP-style embeddings (stretch: style drift, reverse matching)
-  // Prisma doesn't natively model `vector` yet — add via raw SQL migration:
-  // ALTER TABLE items ADD COLUMN embedding vector(512);
+  // pgvector column for text embeddings (openai/text-embedding-3-small, 1536-dim)
+  // Prisma doesn't natively model `vector` yet — added via raw SQL in migration 20260806000000_init:
+  // ALTER TABLE "items" ADD COLUMN "embedding" vector(1536);
   embeddingUpdatedAt DateTime?
 
   createdAt     DateTime @default(now())

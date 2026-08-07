@@ -1,0 +1,9 @@
+{
+  "name": "@closetiq/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Web frontend is currently empty/unimplemented. API is running below.'",
+    "build": "echo 'No-op build for empty web workspace'"
+  }
+}
