@@ -47,6 +47,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Copy root package.json — required so the prisma CLI can locate the project root
+COPY --from=builder /app/package.json ./package.json
+
 # Copy compiled API
 COPY --from=builder /app/apps/api/dist ./dist
 
@@ -61,11 +64,6 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 EXPOSE 4000
 
-# Copy the Prisma binary so we don't need npx (which tries to hit the network).
-# Use the locally-installed prisma CLI from node_modules.
-COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
-
-# Run migrations then start the server.
-# `prisma migrate deploy` is idempotent — safe to run on every startup.
-# Use the local binary — avoid npx which may not find prisma in production image.
-CMD ["sh", "-c", "echo '==> Running DB migrations...' && ./node_modules/.bin/prisma migrate deploy --schema=./prisma/schema.prisma && echo '==> Starting API server...' && node dist/index.js"]
+# Run migrations using node directly (avoids yarn workspace resolution in runner).
+# Then start the compiled API server.
+CMD ["sh", "-c", "echo '==> Running DB migrations...' && node node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma && echo '==> Starting API server...' && node dist/index.js"]
