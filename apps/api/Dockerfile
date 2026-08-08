@@ -34,13 +34,25 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Compiled API output
 COPY --from=builder /app/apps/api/dist ./dist
+
+# Workspace node_modules (contains hoisted deps + symlinks to @closetiq/* packages)
 COPY --from=builder /app/node_modules ./node_modules
+
+# The @closetiq/db symlink in node_modules points to ../../packages/db
+# We must copy the actual package so the symlink resolves correctly at runtime
+COPY --from=builder /app/packages/db ./packages/db
+
+# The @closetiq/shared symlink points to ../../packages/shared — copy it too
+COPY --from=builder /app/packages/shared ./packages/shared
+
+# Prisma schema + migrations for migrate deploy at startup
 COPY --from=builder /app/packages/db/prisma ./prisma
+
+# Generated Prisma client binaries
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 EXPOSE 4000
 
-# Dockerfile CMD is now respected — Railway startCommand override has been cleared.
-# Run migrations then start the API server.
 CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma && node dist/index.js"]
